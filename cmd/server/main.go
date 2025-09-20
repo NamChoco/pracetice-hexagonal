@@ -1,13 +1,28 @@
 package main
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"log"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/NamChoco/pracetice-hexagonal/internal/adapter/fiber/routes"
+	"github.com/NamChoco/pracetice-hexagonal/internal/adapter/sqlite"
+)
 
 func main() {
+	// setup DB
+	db, err := sqlite.InitDB("qa.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Fiber app
 	app := fiber.New()
 
-	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World!")
-	})
+	// Register routes
+	routes.RegisterQARoutes(app, db)
 
-	app.Listen(":3000")
+	log.Println("Server running on http://localhost:3000")
+	if err := app.Listen(":3000"); err != nil {
+		log.Fatal(err)
+	}
 }
